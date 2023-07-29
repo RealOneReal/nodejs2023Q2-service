@@ -66,6 +66,6 @@ export class UserController {
     if (!result) {
       throw new NotFoundException('User not found');
     }
-    return true;
+    return result;
   }
 }
