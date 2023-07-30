@@ -22,7 +22,7 @@ export class ArtistRepository {
   }
 
   async remove(id: string) {
-    const index = this.artists.findIndex((user) => user.id === id);
+    const index = this.artists.findIndex((artist) => artist.id === id);
     if (index > -1) {
       this.artists.splice(index, 1);
       return true;
@@ -31,7 +31,7 @@ export class ArtistRepository {
   }
 
   async findOne(id: string) {
-    return this.artists.find((user) => user.id === id);
+    return this.artists.find((artist) => artist.id === id);
   }
 
   async update(id: string, updateUserDto: UpdateArtistDto) {

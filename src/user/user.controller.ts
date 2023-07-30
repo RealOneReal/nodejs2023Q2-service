@@ -52,7 +52,6 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.userService.update(id, updateUserDto);
-    console.log(user);
     if (!user) {
       throw new NotFoundException('User not found');
     }
