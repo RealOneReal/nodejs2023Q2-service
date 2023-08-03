@@ -1,0 +1,7 @@
+FROM postgres:13
+
+ENV POSTGRES_USER=realone
+ENV POSTGRES_PASSWORD=Realone1_hero
+ENV POSTGRES_DB=postgres
+
+EXPOSE 5432
