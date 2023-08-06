@@ -1,28 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { TrackRepository } from './track.repository';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TrackService {
-  constructor(private readonly trackRepository: TrackRepository) {}
+  constructor(private prismaService: PrismaService) {}
   create(createTrackDto: CreateTrackDto) {
-    return this.trackRepository.create(createTrackDto);
+    return this.prismaService.track.create({ data: createTrackDto });
   }
 
   findAll() {
-    return this.trackRepository.findAll();
+    return this.prismaService.track.findMany();
   }
 
   findOne(id: string) {
-    return this.trackRepository.findOne(id);
+    return this.prismaService.track.findUnique({ where: { id } });
   }
 
   update(id: string, updateTrackDto: UpdateTrackDto) {
-    return this.trackRepository.update(id, updateTrackDto);
+    return this.prismaService.track.update({
+      where: { id },
+      data: updateTrackDto,
+    });
   }
 
   remove(id: string) {
-    return this.trackRepository.remove(id);
+    return this.prismaService.track.delete({ where: { id } });
   }
 }

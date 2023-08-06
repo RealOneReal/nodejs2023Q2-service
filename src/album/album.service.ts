@@ -1,41 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { AlbumRepository } from './album.repository';
-import { TrackService } from 'src/track/track.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AlbumService {
-  constructor(
-    private readonly albumRepository: AlbumRepository,
-    private trackService: TrackService,
-  ) {}
+  constructor(private prismaService: PrismaService) {}
+
   create(createAlbumDto: CreateAlbumDto) {
-    return this.albumRepository.create(createAlbumDto);
+    return this.prismaService.album.create({ data: createAlbumDto });
   }
 
   findAll() {
-    return this.albumRepository.findAll();
+    return this.prismaService.album.findMany();
   }
 
   findOne(id: string) {
-    return this.albumRepository.findOne(id);
+    return this.prismaService.album.findUnique({ where: { id } });
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    return this.albumRepository.update(id, updateAlbumDto);
+    return this.prismaService.album.update({
+      where: { id },
+      data: updateAlbumDto,
+    });
   }
 
   async remove(id: string) {
-    const result = this.albumRepository.remove(id);
-    if (result) {
-      const tracks = await this.trackService.findAll();
-      tracks.forEach((track) => {
-        if (track.albumId === id) {
-          this.trackService.update(track.id, { albumId: null });
-        }
-      });
-    }
-    return result;
+    return this.prismaService.album.delete({ where: { id } });
   }
 }
