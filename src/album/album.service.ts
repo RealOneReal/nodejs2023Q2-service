@@ -19,14 +19,24 @@ export class AlbumService {
     return this.prismaService.album.findUnique({ where: { id } });
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    return this.prismaService.album.update({
-      where: { id },
-      data: updateAlbumDto,
-    });
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    try {
+      const album = await this.prismaService.album.update({
+        where: { id },
+        data: updateAlbumDto,
+      });
+      return album;
+    } catch (error) {
+      return;
+    }
   }
 
   async remove(id: string) {
-    return this.prismaService.album.delete({ where: { id } });
+    try {
+      await this.prismaService.album.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

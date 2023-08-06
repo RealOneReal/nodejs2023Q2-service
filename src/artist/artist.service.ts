@@ -19,14 +19,24 @@ export class ArtistService {
     return this.prismaService.artist.findUnique({ where: { id } });
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
-    return this.prismaService.artist.update({
-      where: { id },
-      data: updateArtistDto,
-    });
+  async update(id: string, updateArtistDto: UpdateArtistDto) {
+    try {
+      const artist = await this.prismaService.artist.update({
+        where: { id },
+        data: updateArtistDto,
+      });
+      return artist;
+    } catch (error) {
+      return;
+    }
   }
 
-  remove(id: string) {
-    return this.prismaService.artist.delete({ where: { id } });
+  async remove(id: string) {
+    try {
+      await this.prismaService.artist.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

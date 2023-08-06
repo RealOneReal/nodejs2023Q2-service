@@ -18,14 +18,24 @@ export class TrackService {
     return this.prismaService.track.findUnique({ where: { id } });
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    return this.prismaService.track.update({
-      where: { id },
-      data: updateTrackDto,
-    });
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    try {
+      const track = await this.prismaService.track.update({
+        where: { id },
+        data: updateTrackDto,
+      });
+      return track;
+    } catch (error) {
+      return;
+    }
   }
 
-  remove(id: string) {
-    return this.prismaService.track.delete({ where: { id } });
+  async remove(id: string) {
+    try {
+      await this.prismaService.track.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

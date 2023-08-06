@@ -6,73 +6,103 @@ export class FavoriteService {
   constructor(private prismaService: PrismaService) {}
 
   findAll() {
-    return this.prismaService.favorite.findMany();
+    return this.prismaService.favorite.findMany({
+      include: {
+        artists: {
+          select: {
+            artist: true,
+          },
+        },
+        tracks: {
+          select: {
+            track: true,
+          },
+        },
+        albums: {
+          select: {
+            album: true,
+          },
+        },
+      },
+    });
   }
 
   async addTrack(id: string) {
+    // Найдите трек с заданным идентификатором
     const track = await this.prismaService.track.findUnique({ where: { id } });
-    track &&
-      this.prismaService.favorite.update({
-        where: { id: 'commmon' },
-        data: { tracks: { connect: { id } } },
-      });
-    return track;
-  }
 
-  async addArtist(id: string) {
-    const artist = await this.prismaService.artist.findUnique({
-      where: { id },
+    if (!track) {
+      console.log('Трек с идентификатором', id, 'не найден');
+      return null;
+    }
+
+    console.log('Трек найден:', track);
+
+    // Убедитесь, что запись избранного с идентификатором 'common' существует
+    let favorite = await this.prismaService.favorite.findUnique({
+      where: { id: 'common' },
     });
-    artist &&
-      this.prismaService.favorite.update({
-        where: { id: 'commmon' },
-        data: { artists: { connect: { id } } },
+    if (!favorite) {
+      favorite = await this.prismaService.favorite.create({
+        data: { id: 'common' },
       });
-    return artist;
+    }
+
+    console.log('Запись в Favorite найдена или создана:', favorite);
+
+    // Создайте связь между треком и записью избранного в таблице 'TrackFavorite'
+    try {
+      const trackFavoriteWhere = {
+        trackId: id,
+        favoriteId: 'common',
+      };
+
+      const existingTrackFavorite =
+        await this.prismaService.trackFavorite.findFirst({
+          where: trackFavoriteWhere,
+        });
+
+      if (existingTrackFavorite) {
+        console.log(
+          'Существующая запись в TrackFavorite:',
+          existingTrackFavorite,
+        );
+        return track;
+      }
+
+      const createdTrackFavorite =
+        await this.prismaService.trackFavorite.create({
+          data: trackFavoriteWhere,
+        });
+
+      console.log('Создана запись в TrackFavorite:', createdTrackFavorite);
+      return track;
+    } catch (error) {
+      console.error(
+        'Ошибка при создании связи между треком и избранным:',
+        error,
+      );
+      return null;
+    }
   }
 
   async addAlbum(id: string) {
-    const album = await this.prismaService.artist.findUnique({
-      where: { id },
-    });
-    album &&
-      this.prismaService.favorite.update({
-        where: { id: 'commmon' },
-        data: { albums: { connect: { id } } },
-      });
-    return album;
+    return null;
+  }
+
+  async addArtist(id: string) {
+    return null;
   }
 
   async removeTrack(id: string) {
-    return this.prismaService.favorite.update({
-      where: { id: 'common' },
-      data: {
-        tracks: {
-          disconnect: { id },
-        },
-      },
-    });
+    return null;
   }
 
   async removeArtist(id: string) {
-    return this.prismaService.favorite.update({
-      where: { id: 'common' },
-      data: {
-        artists: {
-          disconnect: { id },
-        },
-      },
-    });
+    return null;
   }
 
   async removeAlbum(id: string) {
-    return this.prismaService.favorite.update({
-      where: { id: 'common' },
-      data: {
-        albums: {
-          disconnect: { id },
-        },
-      },
-    });
+    return null;
   }
 }
