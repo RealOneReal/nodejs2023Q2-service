@@ -7,27 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Album {
-  id   String @id @default(uuid())
-  name String
-  year Int
-
-  artist     Artist?    @relation(fields: [artistId], references: [id], onDelete: SetNull)
-  artistId   String?    
-  tracks     Track[]
-  favorites AlbumFavorite[]
-}
-
-model Artist {
-  id     String  @id @default(uuid())
-  name   String
-  grammy Boolean
-
-  albums     Album[] 
-  tracks     Track[]
-  favorites ArtistFavorite[]
-}
-
 model User {
   id        String   @id @default(uuid())
   login     String
@@ -37,50 +16,42 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Album {
+  id   String @id @default(uuid())
+  name String
+  year Int
+
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  artistId String?
+  tracks   Track[]
+  favorite Favorite[] 
+}
+
+model Artist {
+  id     String  @id @default(uuid())
+  name   String
+  grammy Boolean
+
+  albums     Album[]
+  tracks     Track[]
+  favorite   Favorite[]
+}
+
 model Track {
-  id         String    @id @default(uuid())
-  name       String
-  duration   Int
-  artist     Artist?    @relation(fields: [artistId], references: [id], onDelete: SetNull)
-  artistId   String?
-  album      Album?     @relation(fields: [albumId], references: [id], onDelete: SetNull)
-  albumId    String?
-  favorites TrackFavorite[]
+  id       String  @id @default(uuid())
+  name     String
+  duration Int
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  artistId String?
+  album    Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  albumId  String?
+
+  favorites Favorite[]
 }
 
 model Favorite {
-  id      String   @id @default(value:"common")
-  artists ArtistFavorite[] 
-  albums  AlbumFavorite[]
-  tracks  TrackFavorite[]
-}
-
-model ArtistFavorite {
-  artistId String
-  favoriteId String
-
-  artist   Artist   @relation(fields: [artistId], references: [id])
-  favorite Favorite @relation(fields: [favoriteId], references: [id])
-
-  @@id([artistId, favoriteId])
-}
-
-model AlbumFavorite {
-  albumId String
-  favoriteId String
-
-  album   Album   @relation(fields: [albumId], references: [id])
-  favorite Favorite @relation(fields: [favoriteId], references: [id])
-
-  @@id([albumId, favoriteId])
-}
-
-model TrackFavorite {
-  trackId String
-  favoriteId String
-
-  track   Track   @relation(fields: [trackId], references: [id])
-  favorite Favorite @relation(fields: [favoriteId], references: [id])
-
-  @@id([trackId, favoriteId])
+  id      String   @id @default("common")
+  artists Artist[] 
+  tracks  Track[]
+  albums Album[] 
 }
