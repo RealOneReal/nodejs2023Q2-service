@@ -32,10 +32,8 @@ export class FavoriteService {
           albums: true,
         },
       });
-      console.log(updatedFavorite);
       return updatedFavorite;
     } catch (error) {
-      console.log(error);
       return;
     }
   }
