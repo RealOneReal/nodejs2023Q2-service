@@ -13,6 +13,6 @@ RUN npx prisma generate
 
 COPY . .
 
-EXPOSE 4000
+EXPOSE ${APP_PORT}
 
 CMD ["npm", "start"]
