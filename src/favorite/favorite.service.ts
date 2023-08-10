@@ -1,49 +1,130 @@
 import { Injectable } from '@nestjs/common';
-import { AlbumService } from 'src/album/album.service';
-import { ArtistService } from 'src/artist/artist.service';
-import { TrackService } from 'src/track/track.service';
-import { FavoriteRepository } from './favorite.repository';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class FavoriteService {
-  constructor(
-    private artistService: ArtistService,
-    private trackService: TrackService,
-    private albumService: AlbumService,
-    private favoriteRepository: FavoriteRepository,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.favoriteRepository.findALL();
+  async findAll() {
+    const favorites = await this.prisma.favorite.findUnique({
+      where: { id: 'common' },
+      include: {
+        albums: true,
+        artists: true,
+        tracks: true,
+      },
+    });
+    return {
+      albums: favorites?.albums || [],
+      tracks: favorites?.tracks || [],
+      artists: favorites?.artists || [],
+    };
   }
 
   async addTrack(id: string) {
-    const track = await this.trackService.findOne(id);
-    track && this.favoriteRepository.addTrack(track);
-    return track;
-  }
-
-  async addArtist(id: string) {
-    const artist = await this.artistService.findOne(id);
-    artist && this.favoriteRepository.addArtist(artist);
-    return artist;
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { tracks: { connect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
   }
 
   async addAlbum(id: string) {
-    const album = await this.albumService.findOne(id);
-    album && this.favoriteRepository.addAlbum(album);
-    return album;
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { albums: { connect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
+  }
+
+  async addArtist(id) {
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { artists: { connect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
   }
 
   async removeTrack(id: string) {
-    return this.favoriteRepository.removeTrack(id);
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { tracks: { disconnect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
   }
 
   async removeArtist(id: string) {
-    return this.favoriteRepository.removeArtist(id);
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { artists: { disconnect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
   }
 
   async removeAlbum(id: string) {
-    return this.favoriteRepository.removeAlbum(id);
+    try {
+      const updatedFavorite = await this.prisma.favorite.update({
+        where: { id: 'common' },
+        data: { albums: { disconnect: { id } } },
+        include: {
+          tracks: true,
+          artists: true,
+          albums: true,
+        },
+      });
+
+      return updatedFavorite;
+    } catch (error) {
+      return;
+    }
   }
 }

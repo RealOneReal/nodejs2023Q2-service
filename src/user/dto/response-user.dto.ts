@@ -12,6 +12,10 @@ export class ResponseUserDto {
   password: string;
 
   constructor(partial: Partial<User>) {
-    Object.assign(this, partial);
+    Object.assign(this, {
+      ...partial,
+      createdAt: partial.createdAt?.getTime(),
+      updatedAt: partial.updatedAt?.getTime(),
+    });
   }
 }
