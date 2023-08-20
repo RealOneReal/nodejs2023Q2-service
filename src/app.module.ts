@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,7 +8,8 @@ import { AlbumModule } from './album/album.module';
 import { TrackModule } from './track/track.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { LoggerModule } from './logger/logger.module';
+import { LoggingService } from './logger/logging.service';
+import { LoggingMiddleware } from './logging.middleware';
 
 @Module({
   imports: [
@@ -19,9 +20,15 @@ import { LoggerModule } from './logger/logger.module';
     FavoriteModule,
     PrismaModule,
     ConfigModule.forRoot(),
-    LoggerModule,
+    LoggingService,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, LoggingService, LoggingMiddleware],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggingMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

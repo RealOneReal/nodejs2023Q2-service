@@ -1,36 +1,68 @@
 import { Injectable } from '@nestjs/common';
-import path from 'node:path';
-import fs from 'node:fs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class LoggingService {
-  private logFilePath: string;
+  private readonly logDirectory = path.join(__dirname, 'logs');
+  private readonly logFileName = 'app.log';
+  private readonly maxLogFileSize = parseInt(process.env.LOG_FILE_MAX_SIZE, 10);
   private logStream: fs.WriteStream;
 
   constructor() {
-    const logDir = 'logs';
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir);
+    if (!fs.existsSync(this.logDirectory)) {
+      fs.mkdirSync(this.logDirectory);
     }
-    const logFileName = `app_${new Date().toISOString().slice(0, 10)}.log`;
-    this.logFilePath = path.join(logDir, logFileName);
-    this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
+
+    const logFilePath = path.join(this.logDirectory, this.logFileName);
+    this.logStream = this.initializeLogStream(logFilePath);
+  }
+
+  private initializeLogStream(logFilePath: string): fs.WriteStream {
+    let fileStats: fs.Stats;
+
+    if (fs.existsSync(logFilePath)) {
+      fileStats = fs.statSync(logFilePath);
+      if (fileStats.size >= this.maxLogFileSize) {
+        // const now = new Date().toISOString();
+        // const backupFilePath = path.join(this.logDirectory, `app.${now}.log`);
+        // if (this.logStream) {
+        //   this.logStream.end();
+        // }
+        // if (fs.existsSync(logFilePath)) {
+        //   fs.renameSync(logFilePath, backupFilePath);
+        // }
+        // fs.renameSync(logFilePath, backupFilePath);
+        // if (fs.existsSync(backupFilePath)) {
+        //   fs.unlinkSync(backupFilePath);
+        // }
+      }
+    }
+
+    return fs.createWriteStream(logFilePath, { flags: 'a' });
   }
 
   log(message: string, level = 'info') {
-    const now = new Date().toISOString();
-    const logMessage = `${now} [${level.toUpperCase()}] ${message}`;
+    const timestamp = new Date().toISOString();
+    const logMessage = `${timestamp} [${level.toUpperCase()}] ${message}`;
+
     console.log(logMessage);
-    this.writeLog(logMessage);
+
+    if (this.logStream) {
+      this.writeLog(logMessage);
+    }
   }
 
   error(message: string, error: Error) {
-    const now = new Date().toISOString();
-    const logMessage = `${now} [ERROR] ${message}
-      ${error.name}: ${error.message}
+    const timestamp = new Date().toISOString();
+    const logMessage = `${timestamp} [ERROR] ${error.name}: ${error.message} 
       ${error.stack}`;
+
     console.error(logMessage);
-    this.writeLog(logMessage);
+
+    if (this.logStream) {
+      this.writeLog(logMessage);
+    }
   }
 
   private writeLog(logMessage: string) {
