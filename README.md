@@ -47,8 +47,11 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
+To run all tests with authorization
 
 ```
-npm run test
+npm run test:auth
 ```
+
+File with logs u can find in logger/logs/app.log
+(I don't know how it find in container but u can run client localy and find it in dist/src/logger/logs/app.log)
