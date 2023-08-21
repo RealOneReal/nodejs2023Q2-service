@@ -6,6 +6,8 @@ import {
   NotFoundException,
   UnprocessableEntityException,
   ForbiddenException,
+  BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { LoggingService } from './logger/logging.service';
@@ -15,6 +17,8 @@ import { LoggingService } from './logger/logging.service';
   NotFoundException,
   UnprocessableEntityException,
   ForbiddenException,
+  BadRequestException,
+  UnauthorizedException,
 )
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(private loggingService: LoggingService) {}
